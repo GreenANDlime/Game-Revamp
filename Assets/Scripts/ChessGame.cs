@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
+using TMPro;
 
 public class ChessGame : MonoBehaviour
 {
@@ -23,6 +24,10 @@ public class ChessGame : MonoBehaviour
         public PieceType promotionType = PieceType.Queen;
         public bool isDoublePawnPush;
     }
+
+    [Header("Game Over UI")]
+    public TMP_Text winnerText;
+
     [Header("Tornado")]
     [Range(0f, 1f)] public float tornadoChance = 0.15f;
     public Sprite tornadoSprite;
@@ -136,6 +141,12 @@ public class ChessGame : MonoBehaviour
     {
         SetupBoard();
         RecordCurrentPosition();
+
+        if (winnerText != null)
+        {
+            winnerText.text = "";
+            winnerText.gameObject.SetActive(false);
+        }
     }
 
     void Update()
@@ -204,6 +215,15 @@ public class ChessGame : MonoBehaviour
             selectedPiece = null;
             currentLegalMoves.Clear();
             ClearHighlights();
+        }
+    }
+
+    void ShowWinnerText(string message)
+    {
+        if (winnerText != null)
+        {
+            winnerText.text = message;
+            winnerText.gameObject.SetActive(true);
         }
     }
 
@@ -1604,11 +1624,14 @@ public class ChessGame : MonoBehaviour
 
             if (inCheck)
             {
-                gameOverMessage = OpponentOf(sideToMove) + " wins by checkmate.";
+                PieceColor winner = OpponentOf(sideToMove);
+                gameOverMessage = winner + " wins by checkmate.";
+                ShowWinnerText(winner + " Wins!");
             }
             else
             {
                 gameOverMessage = "Draw by stalemate.";
+                ShowWinnerText("Draw!");
             }
 
             Debug.Log(gameOverMessage);
